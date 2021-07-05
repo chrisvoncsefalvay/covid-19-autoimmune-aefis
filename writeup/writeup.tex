@@ -11,7 +11,7 @@
 \usepackage{graphicx}
 \usepackage{hyperref}
 
-\title{VAERS data reveals no increased risk of neuroautoimmune adverse events from COVID-19 vaccines}
+\title{A case-control study of autoimmune AEFIs following COVID-19 vaccination reported to VAERS}
 
 % Authors, for the paper (add full first names)
 \author{Chris von Csefalvay\thanks{Starschema Inc., Arlington, VA. Correspondence: \texttt{csefalvayk@starschema.net}.}}
@@ -50,12 +50,78 @@ By quantitatively assessing the true risk of autoimmune adverse effects on the b
 
 \subsection{Data sources}
 
+Reporting data was obtained from VAERS via \url{vaers.hhs.gov} on 04 July 2021, with data including reports up to 02 July 2021.
+In order to ensure a sufficient number of controls, data was also obtained going back to 01 January 1995, inclusive.
+
+Maintained jointly by the CDC and the FDA, VAERS is a passive reporting system for potentially vaccine-related adverse events.\cite{chen1994vaccine}
+As a passive reporting system, it relies on healthcare professionals, administrators and recipients of vaccines to submit information about potential adverse events following immunisations (AEFIs).
+Reports may be made anonymously, and there is no verification of reports against other objective sources, such as death certificates for alleged fatal AEFIs or against hospital EMRs for claimed admissions.
+Nor is there an established system to deduplicate reports that may have been submitted by multiple parties to the same event, potentially without each other's knowledge.\cite{von2021vaers}
+This results in a significant potential for overreporting of AEFIs to VAERS.
+
+At the same time, there is no general obligation to report most AEFIs to VAERS.
+An exception under this are circumstances covered by the National Childhood Vaccine Injury Act of 1986 (42 U.S.C. \S 300aa-1 to 300aa-34).
+Each of the Emergency Use Authorizations under which the three COVID-19 vaccines were authorised in the United States mandate reporting of certain AEFIs, specifically
+
+\begin{itemize}
+    \item any and all administration errors,
+    \item serious adverse effects (AEFIs that result in death, life-threatening illness, inpatient hospitalisation or prolongation of pre-existing hospitalisation, persistent disability or which are determined to be serious in medical judgment),
+    \item instances of Multisystem Inflammatory Syndrome, and
+    \item cases of COVID-19 necessitating hospitalisation or resulting in death.
+\end{itemize}
+
+As a passive reporting system, even with this increased degree of mandatory reporting for COVID-19 vaccines, some AEFIs will go unreported.
+The very extent of this underreporting is hard to ascertain.\cite{SINGLETON19992908}
+Therefore, the study design was devised so as to mitigate the effects of under- and overreporting as long as these are uniform across vaccines.
+
 
 \subsection{Identifying cases}
-	
-\subsection{Identifying controls}
-	
+
+A report was considered a case if at least one of the entries in the reported \texttt{SYMPTOM} fields belonged to the set of relevant diagnoses.
+A diagnosis was considered relevant if its MedDRA code fell within the MedDRA High Level Group Terms (HLGT) for autoimmune disorders (10003816) or immune disorders NEC (10027665), but specifically exclude sarcoidoses (10039487), amyloidoses (10002023), blood isoimmune reactions (10023053) and transplant rejection (10052779).
+In addition, six diagnoses were explicitly excluded:
+ARDS (10001052) and Systemic Immune Response Syndrome (SIRS) (10051379), which are insufficiently specific to an autoimmune cause in the COVID-19 context,
+skin sensitisation (10040785) as it is principally of an allergic rather than autoimmune etiology,
+shoulder injury related to vaccine administration (10081038) as it permits a wide non-autoimmune etiology, and
+the general categories of "adverse event following immunisation" (10069520) and "vaccination complication" (10046861), which were insufficiently specific.
+This yielded the following hierarchy (included diagnoses in bold type):
+
+\begin{itemize}
+    \item Immune system disorders (10021428) \begin{itemize}
+              \item Autoimmune disorders (10003816) \begin{itemize}
+                                                        \item \textbf{Autoimmune disorders NEC (10027657)}
+                                                        \item \textbf{Blood autoimmune disorders (10003817)}
+                                                        \item \textbf{Endocrine autoimmune disorders (10003818)}
+                                                        \item \textbf{Hepatic autoimmune disorders (10003820)}
+                                                        \item \textbf{Lupus erythematosus and associated conditions (10025136)}
+                                                        \item \textbf{Muscular autoimmune disorders (10003821)}
+                                                        \item \textbf{Nervous system autoimmune disorders (10074484)}
+                                                        \item \textbf{Rheumatoid arthritis and associated conditions (10039075)}
+                                                        \item \textbf{Scleroderma and associated disorders (10039711)}
+                                                        \item \textbf{Skin autoimmune disorders NEC (10052738)}
+              \end{itemize}
+              \item Immune disorders NEC (10027665) \begin{itemize}
+                                                        \item Acute and chronic sarcoidosis (10039487)
+                                                        \item Amyloidoses (10002023)
+                                                        \item \textbf{Autoinflammatory diseases (10073080)}
+                                                        \item Blood isoimmune reactions (10023053)
+                                                        \item \textbf{Immune and associated conditions NEC (10027682)}, except: \begin{itemize}
+                                                                                                                                    \item ARDS (10001052),
+                                                                                                                                    \item Adverse event following immunisation (10069520),
+                                                                                                                                    \item Shoulder injury related to vaccine administration (10081038),
+                                                                                                                                    \item Vaccination complication (10046861),
+                                                                                                                                    \item Skin sensitisation (10040785), and
+                                                                                                                                    \item Systemic Immune Response Syndrome (SIRS) (10051379).
+                                                        \end{itemize}
+                                                        \item Transplant rejection (10052779)
+                                                        \item \textbf{Vasculitides (10052779)}
+              \end{itemize}
+    \end{itemize}
+\end{itemize}
+
 \subsection{Case-control matching}
+
+
 	
 \subsection{Statistical analysis}
 	
@@ -69,9 +135,6 @@ By quantitatively assessing the true risk of autoimmune adverse effects on the b
 \section{Conclusion}
 
 important to cite no-findings see 'thje risk of vaccination-the importance of negative studies'
-
-% Document
-\begin{document}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
