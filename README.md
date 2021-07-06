@@ -1,5 +1,7 @@
 # A case-control study of autoimmune AEFIs following COVID-19 vaccination reported to VAERS: supplementary materials
 
+[![DOI](https://zenodo.org/badge/382702502.svg)](https://zenodo.org/badge/latestdoi/382702502)
+
 Data and companion notebooks for the paper _A case-control study of autoimmune AEFIs following COVID-19 vaccination reported to VAERS_ by Chris von Csefalvay (fc.).
 
 ## Contents
