@@ -22,7 +22,17 @@
 \maketitle
 
 \begin{abstract}
-TBD.
+Autoimmune adverse effects following immunisation (AEFIs) are widely regarded as a chief concern driving vaccine hesitancy.
+This case-control study seeks to shed light on the true risk of autoimmune AEFIs associated with the COVID-19 vaccine through a case-control analysis of VAERS reports.
+Reports of autoimmune aetiology were matched with reports of non-autoimmune controls.
+Statistical analysis reveals that the safety profile of COVID-19 vaccines with regard to autoimmune AEFIs is highly favourable.
+In particular, neuroautoimmune AEFIs have statistically significant reporting odds ratios below unity (Guillain-Barre syndrome: 0.35, multiple sclerosis: 0.70, transverse myelitis: 0.79), indicating a reduced association of reports of these conditions with the COVID-19 vaccine versus other vaccines.
+Only three autoimmune aetiologies exceed a ROR of 2.0 and thus present a potential signal.
+Of these, myasthenia gravis (ROR = 3.90, $p < 0.001$, 95\% CI: 2.63-5.80) may be the result of epidemiological confounding factors not sufficiently controlled by matching, as the population most likely to develop myasthenia gravis was strongly prioritised in the COVID-19 vaccine's initial rollout.
+Immune thrombocytopaenia (ROR = 26.83, $p < 0.001$, 95\% CI: 16.93-42.54) is a clear safety signal, confirming a large number of case reports and studies that indicate a risk of immune thrombocytopaenic events following the COVID-19 vaccine.
+The lone strong safety signal of immune thrombocytopaenia notwithstanding, this study attests to the safety of the COVID-19 vaccine where autoimmune conditions are concerned.
+Through quantifying the risk of autoimmune disorders associated with COVID-19 vaccination, this study contributes to a growing body of evidence supporting the safety of such vaccines.
+
 \end{abstract}
 
 \section{Introduction}
@@ -124,7 +134,13 @@ This yielded the following hierarchy (included diagnoses in bold type):
 
 Altogether, this yielded 9,287 cases, of whom 2,318 (24.96\%) have been exposed. A detailed cross-tabulation of the results is found in Table~\ref{tab:categories_crosstab}.
 
-\begin{table}[]
+\subsection{Identifying controls}
+
+For the purposes of this analysis, we consider reports a potential control if none of the reported symptoms fall within the autoimmune aetiologies referred to in Subsection~\ref{subsec:identifying-cases}.
+Potential controls were, like cases, obtained from VAERS reports between 1 January 1995 and 2 July 2021.
+This yielded a pool of 788,048 potential controls.
+
+\begin{table}[H]
 \centering
 \begin{tabular}{@{}lll@{}}
 \toprule
@@ -132,16 +148,10 @@ Altogether, this yielded 9,287 cases, of whom 2,318 (24.96\%) have been exposed.
 COVID-19 vaccine     & 2,318                & 342,148                  \\
 Non-COVID-19 vaccine & 6,969                & 445,900                  \\ \bottomrule
 \end{tabular}
-\caption{}
+\caption{Cross-tabulation of cases and controls (columns) by exposure status (rows).}
 \label{tab:categories_crosstab}
 \end{table}
 
-
-\subsection{Identifying controls}
-
-For the purposes of this analysis, we consider reports a potential control if none of the reported symptoms fall within the autoimmune aetiologies referred to in Subsection~\ref{subsec:identifying-cases}.
-Potential controls were, like cases, obtained from VAERS reports between 1 January 1995 and 2 July 2021.
-This yielded a pool of 788,048 potential controls.
 
 \subsection{Identifying exposure}
 
@@ -151,34 +161,27 @@ Notably, if the report listed the COVID-19 vaccine in the patient's prior medica
 A COVID-19 vaccine, for the purposes of this analysis, was defined as any of the approved COVID-19 vaccines in the United States, i.e. any vaccine with a VAERS \texttt{VAX\_TYPE} of \texttt{COVID19}.
 This included VAERS reports that specified the \texttt{VAX\_TYPE} as a COVID-19 vaccine, but did not identify the specific manufacturer, recording the vaccine as \texttt{COVID19 (UNKNOWN)}.
 
-
 \subsection{Case-control matching}
 
-\begin{figure}
+Cases and controls were matched using \texttt{pymatch} 0.3.4.
+For each case, three controls were selected randomly from all potential controls that match the case's gender (male, female or unknown/unspecified) and the case's age band ($<$18, 18-25, 26-40, 41-55, 56-70 and $>$70).
+Separability was assessed by fitting 100 sequential models on balanced samples, with an average return of 59.3\% indicating some mild separability in the data.
+In particular, as is common with age-banded data, propensities exhibited a hexamodal distribution that reflected the number of age bands, with separability emerging most clearly towards the extremes.
+The pre-match propensity score distribution is presented as Figure~\ref{fig:propensity_scores}.
+
+
+\begin{figure}[H]
     \includegraphics[width=12.5 cm]{propensity_scores}
     \caption{Propensity scores of the case and control populations before matching.}
     \label{fig:propensity_scores}
 \end{figure}
 
-Cases and controls were matched using \texttt{pymatch} 0.3.4.
-For each case, three controls were selected randomly from all potential controls that match the case's gender (male, female or unknown/unspecified) and the case's age band (<18, 18-25, 26-40, 41-55, 56-70 and >70).
-Separability was assessed by fitting 100 sequential models on balanced samples, with an average return of 59.3\% indicating some mild separability in the data.
-In particular, as is common with age-banded data, propensities exhibited a hexamodal distribution that reflected the number of age bands, with separability emerging most clearly towards the extremes.
-The pre-match propensity score distribution is presented as Figure~\ref{fig:propensity_scores}.
-	
+
 \subsection{Statistical analysis}
 
 Reporting odds ratios (ROR) were calculated using Fisher's exact test from \texttt{scipy} 1.7.0 for all conditions in the list of autoimmune aetiologies in Subsection~\ref{subsec:identifying-cases} where at least 50 cases could be identified in the exposed population.
 The ROR was calculated against all symptoms except certain purely diagnostic entities (e.g. mere mentions of a test), procedures, ongoing care (e.g. pacemaker maintenance) and normal test results.
 The statistical significance was determined by calculating two-sided $p$ values using Fisher's exact test, under the null hypothesis that reported cases and reported controls would have the same likelihood of exposure to a COVID-19 vaccine.
-
-
-\begin{figure}
-    \includegraphics[width=12.5 cm]{forest_plot_by_etiology}
-    \caption{Forest plot of autoimmune AEFIs with at least 50 cases in the treatment group by Reporting Odds Ratio. Red markers indicate results that are statistically significant at least at $p<0.05$. \\
-    \textasteriskcentered = $p < 0.05$, \textasteriskcentered\textasteriskcentered = $p < 0.005$, \textasteriskcentered\textasteriskcentered\textasteriskcentered = $p < 0.001$}\label{fig:rors}
-\end{figure}
-
 
 \section{Results}
 
@@ -190,7 +193,14 @@ Only three specific autoimmune aetiologies exceed the reporting odds ratio of 2.
 Psoriasis (ROR = 2.99, $p < 0.001$, 95\% CI: 2.34-3.82) and myasthenia gravis (ROR = 3.90, $p < 0.001$, 95\% CI: 2.63-5.80) were observed with a somewhat elevated ROR vis-a-vis other vaccines and other potential AEFIs.
 In this age- and gender-matched analysis, the most significant result that favoured controls pertained no doubt to immune thrombocytopaenia.
 As Figure~\ref{fig:rors} indicates, the ROR for immune thrombocytopaenia was 26.83 ($p < 0.001$, 95\% CI: 16.93-42.54) - in other words, a patient who presented with immune thrombocytopaenia after a vaccination is approx 27 times more likely to have received a COVID-19 vaccine than a non-COVID-19 vaccine.
-Nevertheless, this figure must be understood in the context of the COVID-19 vaccine itself, and in particular in the context of the confounding effects of age and age-related factors.
+Nevertheless, this must be understood in the context of the COVID-19 vaccine itself, and in particular in the context of the confounding effects of age and age-related factors.
+
+\begin{figure}[H]
+    \includegraphics[width=12.5 cm]{forest_plot_by_etiology}
+    \caption{Forest plot of autoimmune AEFIs with at least 50 cases in the treatment group by Reporting Odds Ratio. Red markers indicate results that are statistically significant at least at $p<0.05$. \\
+    \label{fig:rors}}
+\end{figure}
+
 
 \section{Discussion}
 
@@ -272,15 +282,9 @@ It is, however, also a positive finding in the sense that it may serve to bolste
 
 The single AEFI of concern is immune thrombocytopaenia (see Subsection~\ref{subsec:immune-thrombocytopaenia}), which has already been addressed both as case studies\cite{xie2021covid,tarawneh2021immune,tiede2021prothrombotic,pai2021vaccine} and as in-depth epidemiological studies.\cite{WELSH20213329}
 In that sense, the safety signal generated by this study has already been picked up and analysed in detail.
-
-Overall, however, the picture painted by this analyis is highly positive.
-Enduring neurodegenerative disorders, which are often associated with disability and loss of earning power, have been seen as major concerns with regard to the COVID-19 vaccine, even by trained staff in the allied health sciences.\cite{berry2021lessons}
-The effect of such disorders is often nothing short of devastating to the patient and their family.
-Fortunately, the analysis for neurodegeneration strongly supports the safety of COVID-19 vaccines in this field.
-
-Taken on a whole, COVID-19 vaccnies are safe and do nof ps  9  o`````````````§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§q3ÿ`222q1
-
-
+Further research is certainly appropriate to monitor the expanding wealth of data on COVID-19 vaccination.
+Nevertheless, the evidence from this study, based on over six months of vaccinations and over 300 million individual vaccines, certainly confirms the consensus that COVID-19 vaccines are not significantly associated with any unknown autoimmune risk factors.
+This result may be usefully integrated not only into clinical care but also the wider discourse when responding to patient concerns about potential off-target immunogenic effects of COVID-19 vaccines.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \vspace{6pt}
