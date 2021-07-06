@@ -3,6 +3,7 @@
 \documentclass{article}
 \usepackage{amsfonts}
 \usepackage{url}
+\usepackage{booktabs}
 
 
 % Bibliography styling
@@ -74,9 +75,11 @@ As a passive reporting system, even with this increased degree of mandatory repo
 The very extent of this underreporting is hard to ascertain.\cite{SINGLETON19992908}
 Therefore, the study design was devised so as to mitigate the effects of under- and overreporting as long as these are uniform across vaccines.
 
+Data loading and management was performed using Python 3.7.5 and \texttt{pandas} 1.3.0.\cite{mckinney2011pandas}
 
-\subsection{Identifying cases}
+\subsection{Identifying cases}\label{subsec:identifying-cases}
 
+Cases were obtained from VAERS reports received between 1 January 1995 and 2 July 2021, inclusive, in respect of vaccinations that took place within the United States.
 A report was considered a case if at least one of the entries in the reported \texttt{SYMPTOM} fields belonged to the set of relevant diagnoses.
 A diagnosis was considered relevant if its MedDRA code fell within the MedDRA High Level Group Terms (HLGT) for autoimmune disorders (10003816) or immune disorders NEC (10027665), but specifically exclude sarcoidoses (10039487), amyloidoses (10002023), blood isoimmune reactions (10023053) and transplant rejection (10052779).
 In addition, six diagnoses were explicitly excluded:
@@ -119,26 +122,172 @@ This yielded the following hierarchy (included diagnoses in bold type):
     \end{itemize}
 \end{itemize}
 
+Altogether, this yielded 9,287 cases, of whom 2,318 (24.96\%) have been exposed. A detailed cross-tabulation of the results is found in Table~\ref{tab:categories_crosstab}.
+
+\begin{table}[]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+                     & Autoimmune aetiology & Non-autoimmune aetiology \\ \midrule
+COVID-19 vaccine     & 2,318                & 342,148                  \\
+Non-COVID-19 vaccine & 6,969                & 445,900                  \\ \bottomrule
+\end{tabular}
+\caption{}
+\label{tab:categories_crosstab}
+\end{table}
+
+
+\subsection{Identifying controls}
+
+For the purposes of this analysis, we consider reports a potential control if none of the reported symptoms fall within the autoimmune aetiologies referred to in Subsection~\ref{subsec:identifying-cases}.
+Potential controls were, like cases, obtained from VAERS reports between 1 January 1995 and 2 July 2021.
+This yielded a pool of 788,048 potential controls.
+
+\subsection{Identifying exposure}
+
+An exposure was defined as the listing of a COVID-19 vaccine in a report.
+Notably, if the report listed the COVID-19 vaccine in the patient's prior medical history or medications field, but not in the field of vaccines in respect of which the report is being filed, the report was not considered to be part of the exposed class.
+
+A COVID-19 vaccine, for the purposes of this analysis, was defined as any of the approved COVID-19 vaccines in the United States, i.e. any vaccine with a VAERS \texttt{VAX\_TYPE} of \texttt{COVID19}.
+This included VAERS reports that specified the \texttt{VAX\_TYPE} as a COVID-19 vaccine, but did not identify the specific manufacturer, recording the vaccine as \texttt{COVID19 (UNKNOWN)}.
+
+
 \subsection{Case-control matching}
 
+\begin{figure}
+    \includegraphics[width=12.5 cm]{propensity_scores}
+    \caption{Propensity scores of the case and control populations before matching.}
+    \label{fig:propensity_scores}
+\end{figure}
 
+Cases and controls were matched using \texttt{pymatch} 0.3.4.
+For each case, three controls were selected randomly from all potential controls that match the case's gender (male, female or unknown/unspecified) and the case's age band (<18, 18-25, 26-40, 41-55, 56-70 and >70).
+Separability was assessed by fitting 100 sequential models on balanced samples, with an average return of 59.3\% indicating some mild separability in the data.
+In particular, as is common with age-banded data, propensities exhibited a hexamodal distribution that reflected the number of age bands, with separability emerging most clearly towards the extremes.
+The pre-match propensity score distribution is presented as Figure~\ref{fig:propensity_scores}.
 	
 \subsection{Statistical analysis}
-	
+
+Reporting odds ratios (ROR) were calculated using Fisher's exact test from \texttt{scipy} 1.7.0 for all conditions in the list of autoimmune aetiologies in Subsection~\ref{subsec:identifying-cases} where at least 50 cases could be identified in the exposed population.
+The ROR was calculated against all symptoms except certain purely diagnostic entities (e.g. mere mentions of a test), procedures, ongoing care (e.g. pacemaker maintenance) and normal test results.
+The statistical significance was determined by calculating two-sided $p$ values using Fisher's exact test, under the null hypothesis that reported cases and reported controls would have the same likelihood of exposure to a COVID-19 vaccine.
+
+
+\begin{figure}
+    \includegraphics[width=12.5 cm]{forest_plot_by_etiology}
+    \caption{Forest plot of autoimmune AEFIs with at least 50 cases in the treatment group by Reporting Odds Ratio. Red markers indicate results that are statistically significant at least at $p<0.05$. \\
+    \textasteriskcentered = $p < 0.05$, \textasteriskcentered\textasteriskcentered = $p < 0.005$, \textasteriskcentered\textasteriskcentered\textasteriskcentered = $p < 0.001$}\label{fig:rors}
+\end{figure}
+
+
 \section{Results}
+
+As Figure~\ref{fig:rors} shows, results were statistically significant for all but two AEFIs: unspecified vasculitis (MedDRA 10047115) and unspecified autoimmune disorder (MedDRA 10061664).
+The RORs are particularly low for neuroautoimmune conditions (Guillain-Barre syndrome, optic neuritis, multiple sclerosis and transverse myelitis).
+This confirms previous findings as to the safety of COVID-19 vaccines with respect to neuroautoimmune AEFIs.\cite{von2021vaers}
+
+Only three specific autoimmune aetiologies exceed the reporting odds ratio of 2.0, which is widely considered the minimum for signal generation in passive pharmacovigilance.
+Psoriasis (ROR = 2.99, $p < 0.001$, 95\% CI: 2.34-3.82) and myasthenia gravis (ROR = 3.90, $p < 0.001$, 95\% CI: 2.63-5.80) were observed with a somewhat elevated ROR vis-a-vis other vaccines and other potential AEFIs.
+In this age- and gender-matched analysis, the most significant result that favoured controls pertained no doubt to immune thrombocytopaenia.
+As Figure~\ref{fig:rors} indicates, the ROR for immune thrombocytopaenia was 26.83 ($p < 0.001$, 95\% CI: 16.93-42.54) - in other words, a patient who presented with immune thrombocytopaenia after a vaccination is approx 27 times more likely to have received a COVID-19 vaccine than a non-COVID-19 vaccine.
+Nevertheless, this figure must be understood in the context of the COVID-19 vaccine itself, and in particular in the context of the confounding effects of age and age-related factors.
 
 \section{Discussion}
 
+\subsection{Neuroautoimmune AEFIs}
+
+This study confirms previous findings as to the safety of the COVID-19 vaccine with regard to neuroautoimmune disorders.\cite{von2021vaers}
+In particular, with respect to Guillain-Barre syndrome, patients were three times as likely to have received a non-COVID-19 vaccine than a COVID-19 vaccine.
+The absence of a neuroautoimmune safety signal may be usefully emphasised in reassuring the population about the COVID-19 vaccines, especially considering the prominent position such side effects occupy in the landscape of concerns about vaccines that drive vaccine hesitancy.\cite{berry2021lessons}
+Neuroautoimmune disorders are serious, potentially fatal and in many cases permanently disabling.
+For this reason, such an apprehensive reaction is hardly unintelligible.
+The findings of this study further contribute to the growing evidence base that underlines the safety of COVID-19 vaccines with regard to neuroautoimmunity.
+
+\subsection{Myasthenia gravis}
+
+Myasthenia gravis is an autoimmune process in which autoantibodies interfere with neuromuscular signalling at the neuromuscular junction, specifically with the nicotinic acetylcholine receptor (nAChR).\cite{conti2006myasthenia}
+Other than a case study of myasthenia gravis crisis following COVID-19 vaccination,\cite{Tagliaferri_2021} there has been generally no evidence of a myasthenia gravis-related safety signal.
+In fact, the clinical consensus is that the COVID-19 vaccine is safe for patients with myasthenia gravis, and indeed recommended as myasthenia gravis might correlate to a worse clinical outcome with COVID-19.\cite{jacob2020guidance,vzivkovic2021doctor}
+
+The slightly elevated ROR must be understood in the context of the COVID-19 vaccination programme.
+First, the incidence of myasthenia gravis increases with age.\cite{https://doi.org/10.1196/annals.1254.053,phillips1992epidemiology}
+While the present study controls for age as a confounding factor to some extent by way of case-control matching, the effect of such tools on obviating confounders must not be overestimated.\cite{mansournia2018case}
+Case-control matching may reduce confounders, but certain higher order effects may remain resistant to this.
+In particular, the COVID-19 vaccine was initially targeted at patients with pre-existing conditions who might develop worse clinical outcomes if experiencing COVID-19 infection.
+For this reason, it is quite likely that the cohort of those who have received the COVID-19 vaccine would have had a higher prevalence of chronic health conditions along with a higher average age.
+Indeed, in many parts of the United States, vaccinations were primarily available only for those above a certain age and/or suffering from chronic health conditions ('high risk patients').
+Given the overall worse outcomes of COVID-19 among the population with neuromuscular disorders overall,{https://doi.org/10.1196/annals.1254.053} it is therefore likely that such patients were overrepresented.
+
+An additional factor is the not infrequent paraneoplastic etiology of myasthenia gravis.
+Lambert-Eaton myasthenic syndrome (LEMS) is a paraneoplastic syndrome associated most often with small cell lung cancer (SCLC).\cite{o1988lambert}
+Although Lambert-Eaton myasthenic syndrome has a MedDRA code of its own (10067685), it is not inconceivable that a proportion of the myasthenia gravis cases reported are of a paraneoplastic aetiology.
+Patients with malignancies, especially those undergoing cytotoxic and/or immunosuppressive chemotherapy, have been among the first priority groups of the COVID-19 vaccination effort throughout the United States.
+In addition, patients with previous episodes of myasthenia gravis are frequently advised to avoid live vaccines,\cite{gilhus2018myasthenia} and evidence to the safety of most vaccines in myasthenia gravis notwithstanding, many physicians recommend against other vaccinations as well.\cite{zinman2009safety}
+Overall, these factors could plausibly have combined to increase the apparent frequency of reported myasthenia gravis episodes (which may be first or subsequent) to VAERS following COVID-19 vaccination.
+In the absence of a solid biological causal mechanism, and given the relatively low ROR, the evidence continues to support the professional consensus that patients with myasthenia gravis may safely receive the COVID-19 vaccine.\cite{vzivkovic2021doctor}
+The risk of developing myasthenia gravis is, in view of potential confounding factors, unlikely to be strongly associated with the COVID-19 vaccine.
+
+
+\subsection{Immune thrombocytopaenia}\label{subsec:immune-thrombocytopaenia}
+
+Immune thrombocytopaenia (until recently also known as immune thrombocytopaenic purpura, ITP) covers conditions of isolated thrombocytopaenia in the absence of bone marrow dysplasia.\cite{kistangari2013immune}
+Like myasthenia gravis, immune thrombocytopaenia is associated with factors that predispose towards a higher priority for vaccination.
+Immune thrombocytopaenia typically distributes along age in a bimodal manner, with peaks in early childhood and above the age of 60, and approx. 12\% of patients with immune thrombocytopaenia in a recent French study exhibited malignancies or myelodysplasia.\cite{moulis2014epidemiology}
+As such, the presence of uncontrolled confounding factors in this case is plausible to some extent.
+
+Nevertheless, the very high relative reporting ratio of 26.83 cannot be discounted purely by reference to confounding factors.
+Cases of post-COVID-19 vaccine immune thrombocytopaenia have been widely reported in the literature,\cite{xie2021covid,tarawneh2021immune,tiede2021prothrombotic,pai2021vaccine} across a range of vaccines, including the Moderna vaccine as well as vaccines like ChAdOx1 (widely known as the Oxford-AstraZeneca vaccine).
+While no causal mechanism has been convincingly identified for immune thrombocytopaenia following COVID-19 vaccination, molecular mimicry appears to be a plausible potential mechanism.\cite{saudagar2021vigilance}
+
+The association of the Oxford-AstraZeneca vaccine with immune thrombocytopaenia has been widely reported upon.\cite{pishko2021covid}
+This may induce a degree of misattribution bias and even misdiagnosis (since in approx. a third of cases diagnosed as immune thrombocytopaenia, no autoantibodies are expressly identified).
+On the other hand, the high ROR incontrovertbly suggests a potential safety signal.
+Welsh \textit{et al.} convincingly demonstrate that despite this potential signal, the number of reports of immune thrombocytopaenia in view of the number of vaccines administered does not exceed expectations.\cite{WELSH20213329}
+Thus, while the high ROR of immune thrombocytopaenia is no doubt putting COVID-19 vaccination on the map as a potentially associated exposure, it does not on its own suggests an association.
+Out of an abundance of caution, further research and monitoring of immune thrombocytopaenic episodes following COVID-19 vaccination may nevertheless be advisable.
+
 \subsection{Limitations}
 
+As any study that relies on passive reporting, data in this study must be considered in the wider context of limitations to passive reporting in general and VAERS in particular.
+First, such analyses rely on what is reported, suffering not only from under- and overreporting at the same time but also the phenomenon known as differential reporting.\cite{rosenthal1995reporting}
+At the heart of differential reporting is the cognitive bias that events seem to be related if they are temporally closely related and, vice versa, they are seen to be independent if they are further apart.
+Since autoimmune disorders in particular often develop over a longer period of time or may be latently present (from a biochemical perspective, i.e. presence of autoantibodies) well before symptoms are felt and noticed, some cases may evade association, and thus also evade reporting.
+Equally, many autoimmune disorders have a relatively long time to diagnosis due to the often nonspecific symptoms.
+Finally, VAERS accepts reports from lay reporters (e.g. patients and parents) whose attribution may not necessarily be in line with commonly accepted diagnostic categories.
+While the study design has been drafted to reduce the risk of these factors through matching and through comparison with other reported symptoms, its results must be seen with the limitations of VAERS firmly kept in mind.
 
 \section{Conclusion}
 
-important to cite no-findings see 'thje risk of vaccination-the importance of negative studies'
+Case-control studies from passive reporting may contribute to our understanding of the wider adversome of COVID-19 vaccines.
+While passive reporting carries with itself inherent sources of bias and both under- and overreporting, such sources are valuable for generating early signals "in the wild".
+This early analysis contributes to our understanding of the COVID-19 vaccine's adverse effects profile by focusing on autoimmune AEFIs in particular, concluding that for most potential AEFIs, an association with a COVID-19 vaccine is much less likely than an association with a non-COVID-19 vaccine.
+
+Only a small minority of AEFIs appear to show a potential safety signal.
+Of these, the safety signals of psoriasis and myasthenia gravis are significantly less pronounced.
+In particular, the potential safety signal of myasthenia gravis is to a great extent explained -- and thus, contradicted -- by the strong association of myasthenia gravis with factors such as age, which is reported to VAERS in a structured manner, and neoplastic comorbidity, which is not.
+
+This study underlines to a great extent the widely shared professional understanding that the COVID-19 vaccine is not liable to induce autoimmune disorders or exacerbate existing autoimmune pathologies.\cite{soy2021practical,ali2021covid,furer2021point}
+In this sense, it is a 'negative study'\cite{doi:10.1056/NEJM200102013440509} -- after all, rather than highlighting a new source of risk, the findings above primarily reflect the safety of the COVID-19 vaccine in the context of autoimmune AEFIs.
+It is, however, also a positive finding in the sense that it may serve to bolster the case in favour of vaccination among populations apprehensive of vaccinations due to the possibility of autoimmune side effects or among patients already affected by an autoimmune disorder.
+
+The single AEFI of concern is immune thrombocytopaenia (see Subsection~\ref{subsec:immune-thrombocytopaenia}), which has already been addressed both as case studies\cite{xie2021covid,tarawneh2021immune,tiede2021prothrombotic,pai2021vaccine} and as in-depth epidemiological studies.\cite{WELSH20213329}
+In that sense, the safety signal generated by this study has already been picked up and analysed in detail.
+
+Overall, however, the picture painted by this analyis is highly positive.
+Enduring neurodegenerative disorders, which are often associated with disability and loss of earning power, have been seen as major concerns with regard to the COVID-19 vaccine, even by trained staff in the allied health sciences.\cite{berry2021lessons}
+The effect of such disorders is often nothing short of devastating to the patient and their family.
+Fortunately, the analysis for neurodegeneration strongly supports the safety of COVID-19 vaccines in this field.
+
+Taken on a whole, COVID-19 vaccnies are safe and do nof ps  9  o`````````````§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§q3ÿ`222q1
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \vspace{6pt}
+
+\section*{Supplementary material}
+
+Supplementary material S1, a CSV (comma-separated values) version of the data underlying Figure~\ref{fig:rors}, is available as part of DOI 10.5281/XXXX.
 
 \section*{Funding}
 
@@ -156,9 +305,6 @@ CvC is a consultant to a company that may be affected by the research reported i
 The funders had no role in the design of the study;
 in the collection, analysis, or interpretation of data;
 in the writing of the manuscript, or in the decision to publish the~results.
-
-
-\section*{References}
 
 \bibliography{bibliography}
 
